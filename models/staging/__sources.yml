@@ -1,0 +1,177 @@
+version: 2
+
+sources:
+  - name: tb_101
+    database: DBT_TASTY_BYTES
+    schema: RAW_DBT
+    tables:
+      - name: COUNTRY
+        columns:
+          - name: COUNTRY_ID
+            tests:
+              - not_null
+          - name: COUNTRY
+            tests:
+              - not_null
+          - name: ISO_COUNTRY
+            tests:
+              - not_null
+          - name: CITY_POPULATION
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+
+      - name: FRANCHISE
+        columns:
+          - name: FRANCHISE_ID
+            tests:
+              - not_null
+          - name: FIRST_NAME
+            tests:
+              - not_null
+          - name: LAST_NAME
+            tests:
+              - not_null
+          - name: E_MAIL
+            tests:
+              - not_null
+
+      - name: LOCATION
+        columns:
+          - name: LOCATION_ID
+            tests:
+              - unique
+              - not_null
+          - name: PLACEKEY
+            tests:
+              - unique
+          - name: LOCATION
+            tests:
+              - not_null
+          - name: CITY
+            tests:
+              - not_null
+          - name: COUNTRY
+            tests:
+              - not_null
+          - name: ISO_COUNTRY_CODE
+            tests:
+              - not_null
+
+      - name: MENU
+        columns:
+          - name: MENU_ID
+            tests:
+              - unique
+              - not_null
+          - name: MENU_ITEM_ID
+            tests:
+              - not_null
+          - name: MENU_ITEM_NAME
+            tests:
+              - not_null
+          - name: MENU_TYPE_ID
+            tests:
+              - not_null
+          - name: SALE_PRICE_USD
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: COST_OF_GOODS_USD
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+
+      - name: ORDER_HEADER
+        columns:
+          - name: ORDER_ID
+            tests:
+              - not_null
+          - name: TRUCK_ID
+            tests:
+              - not_null
+          - name: LOCATION_ID
+            tests:
+              - not_null
+          - name: ORDER_TS
+            tests:
+              - not_null
+          - name: ORDER_AMOUNT
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: ORDER_TOTAL
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: ORDER_CURRENCY
+            tests:
+              - not_null
+
+      - name: ORDER_DETAIL
+        columns:
+          - name: ORDER_DETAIL_ID
+            tests:
+              - not_null
+          - name: ORDER_ID
+            tests:
+              - not_null
+          - name: MENU_ITEM_ID
+            tests:
+              - not_null
+          - name: LINE_NUMBER
+            tests:
+              - not_null
+          - name: QUANTITY
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: UNIT_PRICE
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: true
+          - name: PRICE
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  inclusive: false
+
+      - name: TRUCK
+        columns:
+          - name: TRUCK_ID
+            tests:
+              - unique
+              - not_null
+          - name: MENU_TYPE_ID
+            tests:
+              - not_null
+              - relationships:
+                  to: source('tb_101', 'MENU')
+                  field: MENU_TYPE_ID
+          - name: PRIMARY_CITY
+            tests:
+              - not_null
+          - name: COUNTRY
+            tests:
+              - not_null
+          - name: YEAR
+            tests:
+              - not_null
+          - name: TRUCK_OPENING_DATE
+            tests:
+              - not_null
+
+      - name: CUSTOMER_LOYALTY
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "CHILDREN_COUNT >= 0"

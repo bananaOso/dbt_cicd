@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: orders
+    description: "Denormalized order-level detail combining orders, trucks, menu items, and customer loyalty data"
+    columns:
+      - name: ORDER_ID
+        tests:
+          - not_null
+      - name: ORDER_DETAIL_ID
+        tests:
+          - not_null
+      - name: TRUCK_ID
+        tests:
+          - not_null
+      - name: MENU_ITEM_NAME
+        tests:
+          - not_null
+      - name: QUANTITY
+        tests:
+          - not_null
+      - name: ORDER_TOTAL
+        tests:
+          - not_null
+
+  - name: customer_loyalty_metrics
+    description: "Customer-level aggregation of purchase activity and visited locations"
+    columns:
+      - name: CUSTOMER_ID
+        tests:
+          - unique
+          - not_null
+      - name: TOTAL_SALES
+        tests:
+          - not_null
+
+  - name: top_selling_items
+    description: "Menu item profitability and sales volume analysis"
+    columns:
+      - name: MENU_ITEM_ID
+        tests:
+          - unique
+          - not_null
+      - name: TOTAL_REVENUE
+        tests:
+          - not_null
+      - name: PROFIT_MARGIN_PCT
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: -100
+              max_value: 100
+              inclusive: true
+
+  - name: sales_metrics_by_location
+    description: "Location-level sales aggregation with truck counts"
+    columns:
+      - name: LOCATION_ID
+        tests:
+          - unique
+          - not_null
+      - name: TOTAL_SALES
+        tests:
+          - not_null
